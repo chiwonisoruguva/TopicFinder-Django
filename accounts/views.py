@@ -91,7 +91,7 @@ def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        selected_role = request.POST.get('role')  # This comes from the toggle we will add to the HTML
+        selected_role = request.POST.get('role','student').lower().strip()  # This comes from the toggle we will add to the HTML
 
         try:
             # 1. Check if user exists
@@ -103,8 +103,9 @@ def login_view(request):
                 return redirect('login')
 
             # 3. Security Check: Does their account role match their selection?
-            if user.role != selected_role:
-                messages.error(request, f'This account is not registered as a {selected_role}.')
+            if user.role.lower() != role:
+                role_display = 'Lecturer' if user.role == 'lecturer' else 'Student'
+                messages.error(request, f'This account is registered as a {role_display}. Please select the correct role.')
                 return redirect('login')
 
             # 4. Authenticate
