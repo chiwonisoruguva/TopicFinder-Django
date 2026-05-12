@@ -117,17 +117,21 @@
 
     <script>
         function updateUI(role) {
-            const btnStudent = document.getElementById('btnStudent');
-            const btnLecturer = document.getElementById('btnLecturer');
-            
-            if(role === 'student') {
-                btnStudent.style.background = 'white'; btnStudent.style.color = '#4F46E5';
-                btnLecturer.style.background = 'transparent'; btnLecturer.style.color = '#64748b';
-            } else {
-                btnLecturer.style.background = 'white'; btnLecturer.style.color = '#4F46E5';
-                btnStudent.style.background = 'transparent'; btnStudent.style.color = '#64748b';
-            }
-        }
+    const btnStudent = document.getElementById('btnStudent');
+    const btnLecturer = document.getElementById('btnLecturer');
+    const roleStudent = document.getElementById('roleStudent');
+    const roleLecturer = document.getElementById('roleLecturer');
+
+    if(role === 'student') {
+        roleStudent.checked = true;
+        btnStudent.style.background = 'white'; btnStudent.style.color = '#4F46E5';
+        btnLecturer.style.background = 'transparent'; btnLecturer.style.color = '#64748b';
+    } else {
+        roleLecturer.checked = true;
+        btnLecturer.style.background = 'white'; btnLecturer.style.color = '#4F46E5';
+        btnStudent.style.background = 'transparent'; btnStudent.style.color = '#64748b';
+    }
+}
     </script>
 </body>
 </html>
