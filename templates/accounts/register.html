@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopicFinder - Create Account</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eef2ff;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-corner {
+            position: absolute;
+            top: 24px;
+            left: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .logo-corner span.icon { font-size: 28px; }
+
+        .logo-corner span.name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #4F46E5;
+            letter-spacing: -0.5px;
+        }
+
+        .bg-circle-1 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.08);
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle-2 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.06);
+            bottom: -80px;
+            left: -80px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(79, 70, 229, 0.15);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .icon-badge { font-size: 40px; display: block; margin-bottom: 12px; }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle { color: #888; font-size: 14px; }
+
+        .input-group { margin-bottom: 18px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #fafafa;
+        }
+
+        .input-icon { padding: 0 12px; font-size: 16px; }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 14px 12px 0;
+            border: none;
+            font-size: 15px;
+            outline: none;
+            background-color: transparent;
+            color: #333;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #4F46E5;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover { background-color: #4338ca; }
+
+        .error-msg {
+            background-color: #fff1f1;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            border: 1px solid #fecaca;
+        }
+
+        .success-msg {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0 12px;
+            gap: 10px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background-color: #eee;
+        }
+
+        .divider-text { font-size: 12px; color: #aaa; white-space: nowrap; }
+
+        .link-text {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .link-text a {
+            color: #4F46E5;
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Left Logo -->
+    <div class="logo-corner">
+        <span class="icon">🎓</span>
+        <span class="name">TopicFinder</span>
+    </div>
+
+    <!-- Background decorations -->
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="icon-badge">🎓</span>
+            <h2>Create Account</h2>
+            <p class="subtitle">Join TopicFinder today</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}error-msg{% else %}success-msg{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            <div class="input-group">
+                <label>Full Name</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input type="text" name="name" placeholder="Enter your full name" required />
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" name="email" placeholder="Enter your email" required />
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" name="password" placeholder="Create a password" required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Create Account →</button>
+        </form>
+
+        <div class="divider">
+            <span class="divider-line"></span>
+            <span class="divider-text">already registered?</span>
+            <span class="divider-line"></span>
+        </div>
+
+        <p class="link-text">
+            Already have an account? <a href="{% url 'login' %}">Sign in</a>
+        </p>
+    </div>
+
+</body>
+</html>

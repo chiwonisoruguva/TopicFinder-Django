@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Import the same font used in your dashboard */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #eef2ff;
+    }
+
+    /* Set margin-left to 0 to remove the sidebar space and fill the screen */
+    .main {
+        margin-left: 0 !important; 
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: #eef2ff;
+    }
+
+    .topbar {
+        background-color: #fff;
+        padding: 16px 40px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(79,70,229,0.1);
+    }
+
+    .breadcrumb {
+        font-size: 14px;
+        color: #1a1a2e;
+        font-weight: 800; /* Making it bolder as requested */
+        letter-spacing: -0.3px;
+    }
+
+    .breadcrumb span {
+        color: #4F46E5;
+    }
+
+    .body {
+        flex: 1;
+        padding: 40px;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Background decorative circles */
+    .bg-circle-1 { position: absolute; width: 500px; height: 500px; border-radius: 50%; background-color: rgba(79,70,229,0.05); top: -150px; right: -100px; z-index: 0; }
+    .bg-circle-2 { position: absolute; width: 400px; height: 400px; border-radius: 50%; background-color: rgba(79,70,229,0.03); bottom: -100px; left: -100px; z-index: 0; }
+
+    .header-section {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .results-title { 
+        font-size: 32px; 
+        font-weight: 800; 
+        color: #1a1a2e; 
+        margin: 0;
+        letter-spacing: -1px;
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 24px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .project-card {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(79,70,229,0.08);
+        border: 1px solid rgba(79,70,229,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .project-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(79,70,229,0.12); }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 800;
+        background-color: #dcfce7;
+        color: #16a34a;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 12px 0;
+    }
+
+    .card-description {
+        color: #555e7d;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .recommendations-box {
+        background-color: #f5f7ff;
+        border-radius: 12px;
+        padding: 16px;
+        border-left: 4px solid #4F46E5;
+    }
+
+    .rec-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: #4F46E5;
+        display: block;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+
+    .back-btn {
+        background-color: #4F46E5;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background 0.2s;
+    }
+
+    .back-btn:hover { background-color: #4338ca; }
+
+</style>
+
+<div class="main">
+    <div class="topbar">
+        <div class="breadcrumb">TopicFinder / <span>Suggestions</span></div>
+    </div>
+
+    <div class="body">
+        <div class="bg-circle-1"></div>
+        <div class="bg-circle-2"></div>
+
+        <div class="header-section">
+            <h2 class="results-title">Lecturers Suggestions</h2>
+            <a href="{% url 'dashboard' %}" class="back-btn">← Back to Dashboard</a>
+        </div>
+
+        <div class="projects-grid">
+            {% for idea in suggestions %}
+            <div class="project-card">
+                <div class="status-badge">✨ New Suggestion</div>
+                <h3 class="card-title">{{ idea.title }}</h3>
+                <p class="card-description">{{ idea.description }}</p>
+                <div class="recommendations-box">
+                    <span class="rec-label">Suggested By</span>
+                    <strong style="color: #1a1a2e;">{{ idea.suggested_by.user.get_full_name }}</strong>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 100px; color: #888;">
+                <p>No lecturer suggestions found yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

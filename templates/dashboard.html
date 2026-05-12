@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopicFinder - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #eef2ff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px; background-color: #4F46E5; height: 100vh;
+            position: fixed; top: 0; left: 0;
+            box-shadow: 4px 0 20px rgba(79,70,229,0.4);
+            display: flex; flex-direction: column;
+            padding: 24px 16px;
+            transition: width 0.3s ease, padding 0.3s ease;
+            z-index: 100; overflow: hidden;
+        }
+
+        .sidebar.collapsed { width: 0; padding: 24px 0; }
+
+        .logo-area {
+            margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 16px;
+        }
+
+        .logo-area h1 {
+            font-size: 22px; font-weight: 800; color: #fff;
+            white-space: nowrap; letter-spacing: -0.5px;
+        }
+
+        .credit-box { margin-top: 12px; }
+        .credit-text { font-size: 11px; color: rgba(255,255,255,0.7); display: block; margin-bottom: 6px; white-space: nowrap; }
+        .credit-bar { background-color: rgba(255,255,255,0.2); border-radius: 999px; height: 6px; overflow: hidden; margin-bottom: 4px; }
+        .credit-fill { height: 100%; border-radius: 999px; transition: width 0.3s ease; }
+        .credit-count { font-size: 11px; color: rgba(255,255,255,0.8); white-space: nowrap; }
+
+        nav { display: flex; flex-direction: column; gap: 8px; }
+
+        .menu-item {
+            background-color: transparent; color: #fff; border: none;
+            padding: 12px 16px; border-radius: 8px; font-size: 14px;
+            font-weight: 500; cursor: pointer; text-align: left;
+            white-space: nowrap; transition: background 0.2s;
+            text-decoration: none; display: block;
+        }
+
+        .menu-item:hover { background-color: rgba(255,255,255,0.15); }
+        .menu-item.logout { color: #fca5a5; margin-top: 16px; }
+
+        .main {
+            margin-left: 250px; flex: 1; display: flex; flex-direction: column;
+            transition: margin-left 0.3s ease; min-height: 100vh;
+        }
+
+        .main.expanded { margin-left: 0; }
+
+        .topbar {
+            background-color: #fff; padding: 16px 24px;
+            display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 2px 8px rgba(79,70,229,0.1);
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .toggle-btn {
+            background-color: #4F46E5; color: #fff; border: none;
+            border-radius: 8px; width: 36px; height: 36px;
+            font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .welcome-text { font-size: 14px; color: #555; }
+
+        .body {
+            flex: 1; padding: 32px; display: flex; flex-direction: column;
+            align-items: center; gap: 32px; position: relative; overflow: hidden;
+        }
+
+        .bg-circle-1 { position: absolute; width: 400px; height: 400px; border-radius: 50%; background-color: rgba(79,70,229,0.06); top: -100px; right: -100px; pointer-events: none; }
+        .bg-circle-2 { position: absolute; width: 300px; height: 300px; border-radius: 50%; background-color: rgba(79,70,229,0.04); bottom: -80px; left: -80px; pointer-events: none; }
+
+        .search-card {
+            background-color: #fff; border-radius: 20px; padding: 48px 40px;
+            box-shadow: 0 8px 40px rgba(79,70,229,0.15);
+            width: 100%; max-width: 620px;
+            position: relative; z-index: 5; text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .search-card.compact { padding: 24px 32px; max-width: 100%; border-radius: 14px; }
+        .search-card.compact .search-icon,
+        .search-card.compact h2,
+        .search-card.compact .search-subtitle { display: none; }
+
+        .search-icon { font-size: 48px; display: block; margin-bottom: 16px; }
+        .search-card h2 { font-size: 28px; font-weight: 800; color: #1a1a2e; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .search-subtitle { color: #888; font-size: 14px; margin-bottom: 28px; }
+        .search-box { display: flex; gap: 12px; }
+
+        .search-input {
+            flex: 1; padding: 14px 16px; border-radius: 12px;
+            border: 2px solid #e8e8e8; font-size: 14px; outline: none;
+            background-color: #fafafa; font-family: 'Segoe UI', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus { border-color: #4F46E5; }
+
+        .search-btn {
+            padding: 14px 28px; background-color: #4F46E5; color: #fff;
+            border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(79,70,229,0.4);
+            transition: all 0.2s ease; white-space: nowrap;
+        }
+
+        .search-btn:hover { background-color: #4338ca; }
+        .search-btn:disabled { background-color: #9CA3AF; cursor: not-allowed; box-shadow: none; }
+
+        .no-credits {
+            color: #dc2626; font-size: 13px; margin-top: 16px; padding: 10px;
+            background-color: #fff1f1; border-radius: 8px; border: 1px solid #fecaca;
+        }
+
+        #resultsSection { width: 100%; position: relative; z-index: 5; display: none; }
+
+        .results-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        .results-title { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+        .results-meta { display: flex; gap: 10px; align-items: center; }
+        .results-count { font-size: 13px; color: #888; background-color: #fff; padding: 6px 14px; border-radius: 999px; box-shadow: 0 2px 8px rgba(79,70,229,0.1); }
+
+        .back-btn {
+            font-size: 13px; color: #4F46E5; background: none;
+            border: 2px solid #4F46E5; padding: 6px 14px;
+            border-radius: 999px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+
+        .back-btn:hover { background-color: #4F46E5; color: #fff; }
+
+        .no-results { text-align: center; padding: 60px 32px; background-color: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(79,70,229,0.08); }
+        .no-results .icon { font-size: 48px; margin-bottom: 12px; display: block; }
+        .no-results h3 { font-size: 18px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+        .no-results p { font-size: 14px; color: #888; }
+
+        .loading { text-align: center; padding: 60px; display: none; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #eef2ff; border-top-color: #4F46E5; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { color: #888; font-size: 14px; }
+
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+
+        .project-card {
+            background-color: #fff; border-radius: 16px; padding: 24px;
+            box-shadow: 0 4px 20px rgba(79,70,229,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex; flex-direction: column; gap: 14px;
+            animation: fadeUp 0.3s ease forwards;
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .project-card.taken-card { opacity: 0.6; background-color: #f9f9f9; }
+        .project-card.taken-card:hover { transform: none; box-shadow: 0 4px 20px rgba(79,70,229,0.08); }
+        .project-card:not(.taken-card):hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(79,70,229,0.15); }
+
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; width: fit-content; }
+        .status-complete { background-color: #dcfce7; color: #16a34a; }
+        .status-in_progress { background-color: #fef9c3; color: #ca8a04; }
+        .status-taken { background-color: #fee2e2; color: #dc2626; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .card-title { font-size: 16px; font-weight: 800; color: #1a1a2e; line-height: 1.3; }
+        .card-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: #888; }
+        .card-meta span { display: flex; align-items: center; gap: 4px; }
+        .card-description { font-size: 13px; color: #555; line-height: 1.6; }
+        .card-description.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
+         line-clamp: 3;}
+
+        .recommendations-box {
+    background: transparent !important; /* This removes the blue/grey bar background */
+    border: none !important;            /* This removes any borders */
+    box-shadow: none !important;        /* This removes any shadows */
+    color: #4b5563;                     /* A nice dark grey for the text */
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.rec-label {
+    color: #4F46E5; /* Keep it blue so users know it's a link/button */
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-block;
+    transition: opacity 0.2s;
+}
+
+.rec-label:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.rec-label {
+    color: #4F46E5; /* Keep it blue so users know it's a link/button */
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-block;
+    transition: opacity 0.2s;
+}
+
+.rec-label:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+        
+        .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { background-color: #eef2ff; color: #4F46E5; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+
+        .card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+        .btn { padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s ease; }
+        .btn-primary { background-color: #4F46E5; color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+        .btn-primary:hover { background-color: #4338ca; }
+        .btn-outline { background-color: transparent; color: #4F46E5; border: 2px solid #4F46E5; }
+        .btn-outline:hover { background-color: #eef2ff; }
+        .btn-danger { background-color: transparent; color: #dc2626; border: 2px solid #dc2626; }
+        .btn-danger:hover { background-color: #fee2e2; }
+        .btn-disabled { background-color: #e5e7eb; color: #9CA3AF; cursor: not-allowed; }
+        .btn-toggle { background-color: #f3f4f6; color: #555; border: none; padding: 9px 14px; }
+        .btn-toggle:hover { background-color: #e5e7eb; }
+
+        .toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background-color: #1a1a2e; color: #fff;
+            padding: 14px 20px; border-radius: 12px;
+            font-size: 14px; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transform: translateY(80px); opacity: 0;
+            transition: all 0.3s ease; z-index: 999; max-width: 320px;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-left: 4px solid #16a34a; }
+        .toast.error   { border-left: 4px solid #dc2626; }
+        .toast.info    { border-left: 4px solid #4F46E5; }
+
+        .customise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .customise-overlay.active { opacity: 1; visibility: visible; }
+
+        .customise-panel { position: fixed; top: 0; right: -400px; width: 360px; height: 100vh; background-color: #fff; z-index: 201; box-shadow: -4px 0 30px rgba(79,70,229,0.2); transition: right 0.3s ease; overflow-y: auto; padding: 24px; }
+        .customise-panel.active { right: 0; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid #eef2ff; }
+        .panel-header h3 { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+        .close-btn { background-color: #eef2ff; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 16px; cursor: pointer; color: #4F46E5; font-weight: 700; }
+        .section-title { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 24px; }
+
+        .theme-toggle { display: flex; gap: 8px; }
+        .theme-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid #e8e8e8; background-color: #fafafa; cursor: pointer; font-size: 13px; font-weight: 600; color: #555; transition: all 0.2s; }
+        .theme-btn.active { border-color: #4F46E5; background-color: #eef2ff; color: #4F46E5; }
+
+        .color-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .color-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+        .color-btn.active { border-color: #1a1a2e; transform: scale(1.15); }
+
+        .font-options { display: flex; gap: 8px; }
+        .font-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid #e8e8e8; background-color: #fafafa; cursor: pointer; font-weight: 600; color: #555; transition: all 0.2s; }
+        .font-btn.active { border-color: #4F46E5; background-color: #eef2ff; color: #4F46E5; }
+
+        .name-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 2px solid #e8e8e8; font-size: 14px; outline: none; font-family: 'Segoe UI', sans-serif; background-color: #fafafa; }
+        .name-input:focus { border-color: #4F46E5; }
+        .save-name-btn { width: 100%; padding: 12px; background-color: #4F46E5; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); }
+        .save-name-btn:hover { background-color: #4338ca; }
+
+        .avatar-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .avatar-btn { width: 50px; height: 50px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; font-size: 24px; background-color: #eef2ff; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .avatar-btn.active { border-color: #4F46E5; transform: scale(1.15); }
+
+        .delete-btn { width: 100%; padding: 12px; background-color: #dc2626; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(220,38,38,0.3); transition: all 0.2s; }
+        .delete-btn:hover { background-color: #b91c1c; }
+
+        body.dark-mode { background-color: #1a1a2e; }
+        body.dark-mode .topbar { background-color: #16213e; }
+        body.dark-mode .welcome-text { color: #ccc; }
+        body.dark-mode .search-card { background-color: #16213e; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+        body.dark-mode .search-card h2 { color: #fff; }
+        body.dark-mode .search-subtitle { color: #aaa; }
+        body.dark-mode .search-input { background-color: #0f3460; border-color: #4F46E5; color: #fff; }
+        body.dark-mode .project-card { background-color: #16213e; }
+        body.dark-mode .card-title { color: #fff; }
+        body.dark-mode .card-description { color: #bbb; }
+        body.dark-mode .card-meta { color: #aaa; }
+        body.dark-mode .results-title { color: #fff; }
+        body.dark-mode .results-count { background-color: #16213e; color: #aaa; }
+        body.dark-mode .no-results { background-color: #16213e; }
+        body.dark-mode .no-results h3 { color: #fff; }
+        body.dark-mode .tag { background-color: #0f3460; }
+        body.dark-mode .recommendations-box { background-color: #0f3460; }
+        body.dark-mode .btn-toggle { background-color: #0f3460; color: #ccc; }
+        body.dark-mode .customise-panel { background-color: #16213e; color: #fff; }
+        body.dark-mode .panel-header h3 { color: #fff; }
+        body.dark-mode .panel-header { border-color: #4F46E5; }
+        body.dark-mode .theme-btn { background-color: #0f3460; border-color: #4F46E5; color: #ccc; }
+        body.dark-mode .font-btn { background-color: #0f3460; border-color: #4F46E5; color: #ccc; }
+        body.dark-mode .name-input { background-color: #0f3460; border-color: #4F46E5; color: #fff; }
+        body.dark-mode .section-title { color: #aaa; }
+        body.dark-mode .taken-card { background-color: #111827; }
+
+        .btn-take:disabled {
+    background-color: #d1d5db !important; /* Light grey */
+    border-color: #9ca3af !important;
+    color: #6b7280 !important;
+    cursor: not-allowed;
+    transform: none !important; /* Remove hover bounce effects */
+    box-shadow: none !important;
+}
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="logo-area">
+        <h1>🎓 TopicFinder</h1>
+        <div class="credit-box">
+            <span class="credit-text">🔎 Search Credits</span>
+            <div class="credit-bar"><div class="credit-fill" id="creditFill"></div></div>
+            <span class="credit-count" id="creditCount"></span>
+        </div>
+    </div>
+    <nav>
+        <a href="#" class="menu-item" onclick="openCustomise()">🎨 Customise</a>
+        <a href="{% url 'suggestions_list' %}" class="menu-item">🔍 Suggestions</a>
+        <a href="#" class="menu-item" onclick="openAccount()">👤 Account Information</a>
+        <a href="{% url 'logout' %}" class="menu-item logout"> Log Out</a>
+    </nav>
+</div>
+
+<div class="main" id="main">
+    <div class="topbar">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <span class="welcome-text">Welcome back, <strong>{{ user.first_name }}</strong> 👋</span>
+    </div>
+
+    <div class="body">
+        <div class="bg-circle-1"></div>
+        <div class="bg-circle-2"></div>
+
+        <div class="search-card" id="searchCard">
+            <span class="search-icon">🔍</span>
+            <h2>Find Your Topic</h2>
+            <p class="search-subtitle">Search for a computer science topic and we'll suggest the best ones for you.</p>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput"
+                    placeholder="e.g. Artificial Intelligence, Cybersecurity..."
+                    onkeydown="if(event.key==='Enter') doSearch()" />
+                <button class="search-btn" id="searchBtn" onclick="doSearch()">Search →</button>
+            </div>
+            <p class="no-credits" id="noCredits" style="display:none;">⚠️ You have used all your search credits. Wait until they reset...</p>
+        </div>
+
+        <div class="loading" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Searching projects...</p>
+        </div>
+
+        <div id="resultsSection">
+            <div class="results-header">
+                <h2 class="results-title" id="resultsTitle">Results</h2>
+                <div class="results-meta">
+                    <span class="results-count" id="resultsCount"></span>
+                    <button class="back-btn" onclick="clearResults()">✕ Clear</button>
+                </div>
+            </div>
+            <div class="projects-grid" id="projectsGrid"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="customise-overlay" id="customiseOverlay" onclick="closeCustomise()"></div>
+<div class="customise-panel" id="customisePanel">
+    <div class="panel-header">
+        <h3>🎨 Customise</h3>
+        <button class="close-btn" onclick="closeCustomise()">✕</button>
+    </div>
+    <p class="section-title">Theme</p>
+    <div class="theme-toggle">
+        <button class="theme-btn active" id="lightBtn" onclick="setTheme('light')"> Light</button>
+        <button class="theme-btn" id="darkBtn" onclick="setTheme('dark')"> Dark</button>
+    </div>
+    <p class="section-title">Accent Color</p>
+    <div class="color-options">
+        <button class="color-btn active" style="background-color:#4F46E5;" onclick="setColor('#4F46E5','#4338ca',this)"></button>
+        <button class="color-btn" style="background-color:#2563EB;" onclick="setColor('#2563EB','#1d4ed8',this)"></button>
+        <button class="color-btn" style="background-color:#16a34a;" onclick="setColor('#16a34a','#15803d',this)"></button>
+        <button class="color-btn" style="background-color:#dc2626;" onclick="setColor('#dc2626','#b91c1c',this)"></button>
+        <button class="color-btn" style="background-color:#d97706;" onclick="setColor('#d97706','#b45309',this)"></button>
+        <button class="color-btn" style="background-color:#7c3aed;" onclick="setColor('#7c3aed','#6d28d9',this)"></button>
+    </div>
+    <p class="section-title">Font Size</p>
+    <div class="font-options">
+        <button class="font-btn" style="font-size:12px;" onclick="setFontSize('14px',this)">Small</button>
+        <button class="font-btn active" style="font-size:14px;" onclick="setFontSize('16px',this)">Medium</button>
+        <button class="font-btn" style="font-size:16px;" onclick="setFontSize('18px',this)">Large</button>
+    </div>
+    <p class="section-title">Display Name</p>
+    <input type="text" class="name-input" id="displayNameInput" placeholder="Enter your display name" value="{{ user.first_name|default:user.email }}" />
+    <button class="save-name-btn" onclick="saveName()">Save Name</button>
+    <p class="section-title">Avatar</p>
+    <div class="avatar-options">
+        <button class="avatar-btn active" onclick="setAvatar('🎓',this)">🎓</button>
+        <button class="avatar-btn" onclick="setAvatar('👨‍💻',this)">👨‍💻</button>
+        <button class="avatar-btn" onclick="setAvatar('👩‍💻',this)">👩‍💻</button>
+        <button class="avatar-btn" onclick="setAvatar('🚀',this)">🚀</button>
+        <button class="avatar-btn" onclick="setAvatar('🧠',this)">🧠</button>
+        <button class="avatar-btn" onclick="setAvatar('⭐',this)">⭐</button>
+    </div>
+</div>
+
+<div class="customise-overlay" id="accountOverlay" onclick="closeAccount()"></div>
+<div class="customise-panel" id="accountPanel">
+    <div class="panel-header">
+        <h3>👤 Account Information</h3>
+        <button class="close-btn" onclick="closeAccount()">✕</button>
+    </div>
+    <p class="section-title">Your Details</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="padding:14px;background-color:#eef2ff;border-radius:12px;">
+            <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Full Name</p>
+            <p style="font-size:15px;font-weight:600;color:#1a1a2e;">{{ user.first_name|default:"Not set" }} {{ user.last_name }}</p>
+        </div>
+        <div style="padding:14px;background-color:#eef2ff;border-radius:12px;">
+            <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Email Address</p>
+            <p style="font-size:15px;font-weight:600;color:#1a1a2e;">{{ user.email }}</p>
+        </div>
+        <div style="padding:14px;background-color:#eef2ff;border-radius:12px;">
+            <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Date Joined</p>
+            <p style="font-size:15px;font-weight:600;color:#1a1a2e;">{{ user.date_joined|date:"F d, Y" }}</p>
+        </div>
+        <div style="padding:14px;background-color:#eef2ff;border-radius:12px;">
+            <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Search Credits</p>
+            <p style="font-size:15px;font-weight:600;color:#1a1a2e;">{{ user.search_count }}/10 remaining</p>
+        </div>
+    </div>
+    <p class="section-title" style="color:#dc2626;">Danger Zone</p>
+    <div style="border:2px solid #fecaca;border-radius:12px;padding:16px;background-color:#fff1f1;">
+        <p style="font-size:13px;color:#666;margin-bottom:12px;">Once you delete your account all your data will be permanently removed. This action cannot be undone.</p>
+        <button class="delete-btn" onclick="showDeleteForm()">🗑️ Delete My Account</button>
+    </div>
+    <div id="deleteForm" style="display:none;margin-top:20px;">
+        <p class="section-title" style="color:#dc2626;">Why are you leaving?</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;font-size:14px;color:#444;">
+                <input type="radio" name="deleteReason" value="found_topic" style="accent-color:#dc2626;"> I found my topic already
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;font-size:14px;color:#444;">
+                <input type="radio" name="deleteReason" value="not_helpful" style="accent-color:#dc2626;"> The suggestions weren't helpful
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;font-size:14px;color:#444;">
+                <input type="radio" name="deleteReason" value="not_student" style="accent-color:#dc2626;"> I'm no longer a student
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px;border:2px solid #e8e8e8;border-radius:10px;cursor:pointer;font-size:14px;color:#444;">
+                <input type="radio" name="deleteReason" value="other" style="accent-color:#dc2626;"> Other
+            </label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+            <button onclick="hideDeleteForm()" style="flex:1;padding:12px;border-radius:10px;border:2px solid #e8e8e8;background-color:#fafafa;font-size:14px;font-weight:600;cursor:pointer;color:#555;">Cancel</button>
+            <form method="POST" action="{% url 'delete_account' %}" style="flex:1;">
+                {% csrf_token %}
+                <button type="submit" style="width:100%;padding:12px;border-radius:10px;border:none;background-color:#dc2626;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">Confirm Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    var searchCount = parseInt("{{ user.search_count }}");
+    var csrfToken   = "{{ csrf_token }}";
+    var isStudent = "{{ user.is_student|yesno:'true,false' }}" === "true";
+
+    function updateCredits(count) {
+        searchCount = count;
+        var fill     = document.getElementById('creditFill');
+        var countEl  = document.getElementById('creditCount');
+        var btn      = document.getElementById('searchBtn');
+        var input    = document.getElementById('searchInput');
+        var noCredit = document.getElementById('noCredits');
+        var pct      = (searchCount / 10) * 100;
+        fill.style.width = pct + '%';
+        fill.style.backgroundColor = searchCount > 5 ? '#34d399' : searchCount > 2 ? '#fbbf24' : '#f87171';
+        countEl.textContent = searchCount + '/10 remaining';
+        if (searchCount <= 0) {
+            btn.disabled = true; input.disabled = true; noCredit.style.display = 'block';
+        }
+    }
+
+    updateCredits(searchCount);
+
+    function showToast(msg, type) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast ' + (type || 'info');
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 3500);
+    }
+
+    function doSearch() {
+        var query = document.getElementById('searchInput').value.trim();
+        if (!query) { showToast('Please enter a search term.', 'error'); return; }
+        if (searchCount <= 0) { showToast('No search credits remaining.', 'error'); return; }
+
+        document.getElementById('searchCard').classList.add('compact');
+        document.getElementById('loadingSpinner').style.display = 'block';
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('projectsGrid').innerHTML = '';
+
+        fetch('/accounts/search/?q=' + encodeURIComponent(query), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            if (data.error) {
+                showToast(data.error, 'error');
+                document.getElementById('searchCard').classList.remove('compact');
+                return;
+            }
+            updateCredits(data.credits_remaining);
+            renderResults(data);
+        })
+        .catch(function() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            showToast('Something went wrong. Please try again.', 'error');
+            document.getElementById('searchCard').classList.remove('compact');
+        });
+    }
+
+    function renderResults(data) {
+        var section = document.getElementById('resultsSection');
+        var grid    = document.getElementById('projectsGrid');
+        var title   = document.getElementById('resultsTitle');
+        var count   = document.getElementById('resultsCount');
+        title.textContent = 'Results for "' + data.query + '"';
+        count.textContent = data.count + ' project' + (data.count !== 1 ? 's' : '') + ' found';
+        section.style.display = 'block';
+        if (data.count === 0) {
+            grid.innerHTML = '<div class="no-results"><span class="icon">🔍</span><h3>No projects found</h3><p>Try different keywords or tags.</p></div>';
+            return;
+        }
+        grid.innerHTML = '';
+        data.results.forEach(function(p, i) { grid.innerHTML += buildCard(p, i); });
+    }
+
+    function buildCard(p, i) {
+    var isTaken    = p.is_taken;
+    var isComplete = p.status === 'Complete';
+    var cardClass  = isTaken ? 'project-card taken-card' : 'project-card';
+    var delay      = (i * 60) + 'ms';
+    var statusLabel = isTaken ? '🔒 Taken' : (isComplete ? '✅ Complete' : '⏳ In Progress');
+    var statusClass = isTaken ? 'status-badge status-taken' : (isComplete ? 'status-badge status-complete' : 'status-badge status-in_progress');
+    var tags = p.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('');
+
+    var takeBtn = '';
+    if (isStudent) {
+        if (isTaken) {
+            takeBtn = '<button class="btn btn-disabled" disabled>🔒 Already Taken</button>';
+        } else if (isComplete) {
+            takeBtn = '<button class="btn btn-primary" onclick="takeProject(' + p.id + ', this)">🎯 Take this Project</button>';
+        } else {
+            takeBtn = '<button class="btn btn-disabled" disabled style="background:#e5e7eb;color:#9CA3AF;cursor:not-allowed;">⏳ In Progress</button>';
+        }
+    }
+
+    var flagBtn = '';
+    if (isStudent) {
+        flagBtn = p.is_flagged
+            ? '<button class="btn btn-danger" disabled>🚩 Flagged</button>'
+            : '<button class="btn btn-danger" onclick="flagProject(' + p.id + ', this)">🚩 Flag</button>';
+    }
+
+    return '<div class="' + cardClass + '" style="animation-delay:' + delay + '" id="card-' + p.id + '">' +
+        '<div class="card-header">' +
+            '<span class="card-title">' + p.title + '</span>' +
+            '<span class="' + statusClass + '">' + statusLabel + '</span>' +
+        '</div>' +
+        '<div class="card-meta">' +
+            '<span>📅 ' + p.year + '</span>' +
+            (p.lecturer ? '<span>👨‍🏫 ' + p.lecturer + '</span>' : '') +
+            (p.department ? '<span>🏛️ ' + p.department + '</span>' : '') +
+        '</div>' +
+        '<div class="card-description collapsed" id="desc-' + p.id + '">' + p.description + '</div>' +
+        '<div>' +
+            '<span class="rec-label" style="cursor:pointer;" onclick="toggleRecommendations(' + p.id + ')">💡 RECOMMENDATIONS FOR FUTURE STUDENTS</span>' +
+            '<div class="recommendations-box" id="rec-' + p.id + '" style="display:none; padding: 10px 0;">' + p.recommendations + '</div>' +
+        '</div>' +
+        '<div class="card-actions">' + takeBtn + flagBtn +
+            '<button class="btn btn-toggle" onclick="toggleDetails(' + p.id + ', this)">👁 View Details</button>' +
+        '</div>' +
+    '</div>';
+}
+
+    function toggleDetails(id, btn) {
+        var desc     = document.getElementById('desc-' + id);
+        var rec      = document.getElementById('rec-' + id);
+        var expanded = !desc.classList.contains('collapsed');
+        if (expanded) {
+            desc.classList.add('collapsed'); rec.classList.add('collapsed');
+            btn.textContent = '👁 View Details';
+        } else {
+            desc.classList.remove('collapsed'); rec.classList.remove('collapsed');
+            btn.textContent = '👁 Hide Details';
+        }
+    }
+
+    function toggleRecommendations(id) {
+    const box = document.getElementById('rec-' + id);
+    if (box.style.display === "none") {
+        box.style.display = "block";
+    } else {
+        box.style.display = "none";
+    }
+}
+
+    function takeProject(id, btn) {
+        btn.disabled = true; btn.textContent = 'Processing...';
+        fetch('/accounts/project/' + id + '/take/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showToast(data.message, 'success');
+                var card = document.getElementById('card-' + id);
+                card.classList.add('taken-card');
+                btn.textContent = '🔒 Project Taken';
+                btn.className = 'btn btn-disabled';
+                var badge = card.querySelector('.status-badge');
+                badge.className = 'status-badge status-taken';
+                badge.textContent = '🔒 Taken';
+            } else {
+                showToast(data.error || 'Could not take project.', 'error');
+                btn.disabled = false; btn.textContent = ' Take this Project';
+            }
+        })
+        .catch(function() {
+            showToast('Something went wrong.', 'error');
+            btn.disabled = false; btn.textContent = ' Take this Project';
+        });
+    }
+
+    function flagProject(id, btn) {
+        btn.disabled = true;
+        fetch('/accounts/project/' + id + '/flag/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            showToast(data.message, data.success ? 'success' : 'info');
+            btn.textContent = '🚩 Flagged';
+        })
+        .catch(function() {
+            showToast('Something went wrong.', 'error'); btn.disabled = false;
+        });
+    }
+
+    function clearResults() {
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('searchCard').classList.remove('compact');
+        document.getElementById('searchInput').value = '';
+        document.getElementById('projectsGrid').innerHTML = '';
+    }
+
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var main    = document.getElementById('main');
+        sidebar.classList.toggle('collapsed');
+        main.classList.toggle('expanded');
+        document.querySelector('.toggle-btn').textContent = sidebar.classList.contains('collapsed') ? '☰' : '✕';
+    }
+
+    function openCustomise() { document.getElementById('customisePanel').classList.add('active'); document.getElementById('customiseOverlay').classList.add('active'); }
+    function closeCustomise() { document.getElementById('customisePanel').classList.remove('active'); document.getElementById('customiseOverlay').classList.remove('active'); }
+    function openAccount() { document.getElementById('accountPanel').classList.add('active'); document.getElementById('accountOverlay').classList.add('active'); }
+    function closeAccount() { document.getElementById('accountPanel').classList.remove('active'); document.getElementById('accountOverlay').classList.remove('active'); }
+    function showDeleteForm() { document.getElementById('deleteForm').style.display = 'block'; }
+    function hideDeleteForm() { document.getElementById('deleteForm').style.display = 'none'; }
+
+    function setTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkBtn').classList.add('active');
+            document.getElementById('lightBtn').classList.remove('active');
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.getElementById('lightBtn').classList.add('active');
+            document.getElementById('darkBtn').classList.remove('active');
+        }
+        localStorage.setItem('theme', theme);
+    }
+
+    function setColor(color, hoverColor, btn) {
+        document.querySelectorAll('.color-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        document.querySelector('.sidebar').style.backgroundColor = color;
+        document.querySelector('.toggle-btn').style.backgroundColor = color;
+        document.querySelector('.search-btn').style.backgroundColor = color;
+        document.querySelector('.save-name-btn').style.backgroundColor = color;
+        localStorage.setItem('accentColor', color);
+    }
+
+    function setFontSize(size, btn) {
+        document.body.style.fontSize = size;
+        document.querySelectorAll('.font-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        localStorage.setItem('fontSize', size);
+    }
+
+    function saveName() {
+        var name = document.getElementById('displayNameInput').value;
+        if (name.trim()) {
+            document.querySelector('.welcome-text').innerHTML = 'Welcome back, <strong>' + name + '</strong> 👋';
+            localStorage.setItem('displayName', name);
+        }
+    }
+
+    function setAvatar(avatar, btn) {
+        document.querySelectorAll('.avatar-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        localStorage.setItem('avatar', avatar);
+    }
+
+    function loadPreferences() {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') setTheme('dark');
+        var fontSize = localStorage.getItem('fontSize');
+        if (fontSize) document.body.style.fontSize = fontSize;
+        var displayName = localStorage.getItem('displayName');
+        if (displayName) {
+            document.querySelector('.welcome-text').innerHTML = 'Welcome back, <strong>' + displayName + '</strong> 👋';
+        }
+    }
+
+    loadPreferences();
+
+    // Auto-check credits every 60 seconds
+setInterval(function() {
+    fetch('/accounts/check-credits/', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.credits > 0) {
+            updateCredits(data.credits);
+            document.getElementById('searchInput').disabled = false;
+            document.getElementById('searchBtn').disabled = false;
+            document.getElementById('noCredits').style.display = 'none';
+        }
+    });
+}, 60000); // check every 60 seconds
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopicFinder - Goodbye</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eef2ff;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-corner {
+            position: absolute;
+            top: 24px;
+            left: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .logo-corner span.icon { font-size: 28px; }
+
+        .logo-corner span.name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #4F46E5;
+            letter-spacing: -0.5px;
+        }
+
+        .bg-circle-1 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.08);
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle-2 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.06);
+            bottom: -80px;
+            left: -80px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 48px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(79, 70, 229, 0.15);
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .emoji {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        p {
+            color: #888;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 24px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: #4F46E5;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .btn:hover { background-color: #4338ca; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Left Logo -->
+    <div class="logo-corner">
+        <span class="icon">🎓</span>
+        <span class="name">TopicFinder</span>
+    </div>
+
+    <!-- Background decorations -->
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
+
+    <div class="card">
+        <span class="emoji">😢</span>
+        <h2>We're sad to see you go...</h2>
+        <p>Your account has been successfully deleted. All your data has been permanently removed from our system.</p>
+        <p>We hope TopicFinder was helpful during your time here. You're always welcome to create a new account in the future!</p>
+
+        <div class="divider"></div>
+
+        <p style="font-size: 13px; color: #aaa;">Thank you for being part of the TopicFinder community. 💙</p>
+
+        <a href="{% url 'register' %}" class="btn">Create New Account</a>
+    </div>
+
+    <script>
+        // Auto redirect to login after 10 seconds
+        setTimeout(function() {
+            window.location.href = "{% url 'login' %}";
+        }, 10000);
+    </script>
+
+</body>
+</html>

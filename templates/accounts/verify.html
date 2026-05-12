@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopicFinder - Verify Email</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eef2ff;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-corner {
+            position: absolute;
+            top: 24px;
+            left: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .logo-corner span.icon { font-size: 28px; }
+
+        .logo-corner span.name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #4F46E5;
+            letter-spacing: -0.5px;
+        }
+
+        .bg-circle-1 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.08);
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle-2 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.06);
+            bottom: -80px;
+            left: -80px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(79, 70, 229, 0.15);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .icon-badge { font-size: 40px; display: block; margin-bottom: 12px; }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle { color: #888; font-size: 14px; }
+        .subtitle strong { color: #4F46E5; }
+
+        .input-group { margin-bottom: 18px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 32px;
+            text-align: center;
+            letter-spacing: 12px;
+            outline: none;
+            background-color: #fafafa;
+            color: #1a1a2e;
+            font-weight: 800;
+        }
+
+        .code-input:focus { border-color: #4F46E5; }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #4F46E5;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover { background-color: #4338ca; }
+
+        .error-msg {
+            background-color: #fff1f1;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            border: 1px solid #fecaca;
+        }
+
+        .success-msg {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .link-text {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .link-text a {
+            color: #4F46E5;
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Left Logo -->
+    <div class="logo-corner">
+        <span class="icon">🎓</span>
+        <span class="name">TopicFinder</span>
+    </div>
+
+    <!-- Background decorations -->
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="icon-badge">📧</span>
+            <h2>Verify Your Email</h2>
+            <p class="subtitle">
+                We sent a 4-digit code to<br>
+                <strong>{{ email }}</strong>
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}error-msg{% else %}success-msg{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'verify' %}">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ email }}" />
+            <div class="input-group">
+                <label>Verification Code</label>
+                <input 
+                    type="text" 
+                    name="code" 
+                    class="code-input"
+                    placeholder="0000" 
+                    maxlength="4"
+                    required 
+                />
+            </div>
+
+            <button type="submit" class="btn">Verify Email →</button>
+        </form>
+
+        <p class="link-text">
+            Wrong email? <a href="{% url 'register' %}">Go back</a>
+        </p>
+    </div>
+
+</body>
+</html>
