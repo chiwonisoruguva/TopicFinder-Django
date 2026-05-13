@@ -8,5 +8,5 @@ urlpatterns = [
     path('dashboard/', account_views.dashboard_view, name='dashboard'),
     path('', account_views.login_view, name='home'),
     path('', include('accounts.urls')),
-    path('run-import/', views.run_import, name='run_import'),
+   
 ]
