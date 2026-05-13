@@ -422,3 +422,10 @@ def suggestions_list_view(request):
     suggestions = ProjectSuggestion.objects.all().order_by('-created_at')
     return render(request, 'suggestions_list.html', {'suggestions': suggestions})
 
+def run_import(request):
+    import subprocess
+    result = subprocess.run(
+        ['python', 'manage.py', 'import_projects'],
+        capture_output=True, text=True
+    )
+    return HttpResponse(f'<pre>{result.stdout}\n{result.stderr}</pre>')
