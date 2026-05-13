@@ -24,7 +24,7 @@ urlpatterns = [
 
     # ── Suggestions ───────────────────────────────
     path('suggestions/', views.suggestions_list_view, name='suggestions_list'),
-    path('run-import/', views.run_import, name='run_import'),
+   
 
  
 ]
