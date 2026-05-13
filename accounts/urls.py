@@ -11,6 +11,7 @@ urlpatterns = [
 
     # ── Search ────────────────────────────────────
     path('search/', views.search_view, name='search'),
+    path('check-credits/', views.check_credits_view, name='check_credits'),
 
     # ── Project Actions ───────────────────────────
     path('project/<int:project_id>/take/', views.take_project_view, name='take_project'),
@@ -18,9 +19,9 @@ urlpatterns = [
 
     # ── Lecturer ──────────────────────────────────
     path('lecturer/dashboard/', views.lecturer_dashboard, name='lecturer_dashboard'),
-    path('lecturer/add-project/', views.add_project_view, name='add_project'),
-    path('lecturer/add-suggestion/', views.add_suggestion_view, name='add_suggestion'),
+    path('lecturer/add-project/', views.add_project, name='add_project'),
+    path('lecturer/add-suggestion/', views.add_suggestion, name='add_suggestion'),
 
     # ── Suggestions ───────────────────────────────
-    path('suggestions/', views.suggestions_view, name='suggestions'),
+    path('suggestions/', views.suggestions_list_view, name='suggestions_list'),
 ]
