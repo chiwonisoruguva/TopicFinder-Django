@@ -421,3 +421,13 @@ def add_suggestion(request):
 def suggestions_list_view(request):
     suggestions = ProjectSuggestion.objects.all().order_by('-created_at')
     return render(request, 'suggestions_list.html', {'suggestions': suggestions})
+
+def fix_password(request):
+    from accounts.models import CustomUser
+    try:
+        user = CustomUser.objects.get(id=4)
+        user.set_password('Moyo@17')
+        user.save()
+        return HttpResponse('Password fixed!')
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
