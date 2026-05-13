@@ -13,7 +13,6 @@ from .models import CustomUser, Project, ProjectTaken, ProjectFlag, StudentProfi
 # ─────────────────────────────────────────
 #  REGISTER
 # ─────────────────────────────────────────
-
 def register_view(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -33,6 +32,16 @@ def register_view(request):
             verification_code_expires=expires, is_verified=False,
         )
 
+        # Automatically create StudentProfile for student accounts
+        if user.role == 'student':
+            StudentProfile.objects.create(
+                user=user,
+                reg_number=f"REG{user.id:04d}",
+                programme="Bachelor of Science in Computer Science",
+                year_of_study=1,
+                graduation_year=timezone.now().year + 4,
+            )
+
         send_mail(
             'Your TopicFinder Verification Code',
             f'Hi {name},\n\nYour verification code is: {code}\n\nThis code expires in 10 minutes.',
@@ -43,7 +52,6 @@ def register_view(request):
         return redirect(f'/accounts/verify/?email={email}')
 
     return render(request, 'accounts/register.html')
-
 
 # ─────────────────────────────────────────
 #  VERIFY
@@ -422,3 +430,16 @@ def suggestions_list_view(request):
     suggestions = ProjectSuggestion.objects.all().order_by('-created_at')
     return render(request, 'suggestions_list.html', {'suggestions': suggestions})
 
+def fix_profiles(request):
+    fixed = 0
+    for user in CustomUser.objects.filter(role='student'):
+        if not hasattr(user, 'student_profile'):
+            StudentProfile.objects.create(
+                user=user,
+                reg_number=f"REG{user.id:04d}",
+                programme="Bachelor of Science in Computer Science",
+                year_of_study=1,
+                graduation_year=timezone.now().year + 4,
+            )
+            fixed += 1
+    return HttpResponse(f'Fixed {fixed} student profiles!')

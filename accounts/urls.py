@@ -24,7 +24,7 @@ urlpatterns = [
 
     # ── Suggestions ───────────────────────────────
     path('suggestions/', views.suggestions_list_view, name='suggestions_list'),
-   
+   path('fix-profiles/', views.fix_profiles, name='fix_profiles'),
 
  
 ]
