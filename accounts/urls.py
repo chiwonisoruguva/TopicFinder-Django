@@ -17,7 +17,7 @@ urlpatterns = [
     path('project/<int:project_id>/flag/', views.flag_project_view, name='flag_project'),
 
     # ── Lecturer ──────────────────────────────────
-    path('lecturer/dashboard/', views.lecturer_dashboard_view, name='lecturer_dashboard'),
+    path('lecturer/dashboard/', views.lecturer_dashboard, name='lecturer_dashboard'),
     path('lecturer/add-project/', views.add_project_view, name='add_project'),
     path('lecturer/add-suggestion/', views.add_suggestion_view, name='add_suggestion'),
 
