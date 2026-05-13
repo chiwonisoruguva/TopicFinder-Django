@@ -104,7 +104,8 @@ def login_view(request):
                 messages.error(request, f'This account is registered as a {role_display}. Please select the correct role.')
                 return redirect('login')
 
-            auth_user = authenticate(request, username=email, password=password)
+            # ← Fix: authenticate using the actual username stored on the user
+            auth_user = authenticate(request, username=user.username, password=password)
 
             if auth_user is not None:
                 request.session.flush()
