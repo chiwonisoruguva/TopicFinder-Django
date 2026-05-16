@@ -168,3 +168,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CSRF_TRUSTED_ORIGINS = [
     'https://web-production-09be8.up.railway.app',
 ]
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
