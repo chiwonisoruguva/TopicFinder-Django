@@ -38,17 +38,6 @@ def register_view(request):
             verification_code_expires=expires, is_verified=False,
         )
 
-        # Auto-create StudentProfile for new student accounts
-       
-        profile = StudentProfile(
-            user=user,
-            reg_number=f"REG{user.id:04d}",
-            programme="Bachelor of Science in Computer Science",
-            year_of_study=1,
-        )
-        profile.graduation_year = timezone.now().year + 4
-        profile.save()
-
         try:
             send_mail(
                 'Your TopicFinder Verification Code',
@@ -60,15 +49,11 @@ def register_view(request):
             print(f"SUCCESS: Email sent to {email}")
         except Exception as e:
             print(f"EMAIL ERROR: {str(e)}")
-            print(f"EMAIL BACKEND: {os.environ.get('EMAIL_BACKEND', 'not set')}")
-            print(f"EMAIL HOST USER: {os.environ.get('EMAIL_HOST_USER', 'not set')}")
 
         messages.success(request, 'Registration successful! Check your email for the verification code.')
         return redirect(f'/accounts/verify/?email={email}')
 
     return render(request, 'accounts/register.html')
-
-
 # ─────────────────────────────────────────
 #  VERIFY
 # ─────────────────────────────────────────
