@@ -29,29 +29,36 @@ def register_view(request):
             messages.error(request, 'Email is already registered.')
             return redirect('register')
 
-        code    = str(random.randint(1000, 9999))
-        expires = timezone.now() + timedelta(minutes=10)
-
-        user = CustomUser.objects.create_user(
-            username=email, email=email, password=password,
-            first_name=name, verification_code=code,
-            verification_code_expires=expires, is_verified=False,
-        )
-
         try:
-            send_mail(
-                'Your TopicFinder Verification Code',
-                f'Hi {name},\n\nYour verification code is: {code}\n\nThis code expires in 10 minutes.',
-                None,
-                [email],
-                fail_silently=False,
-            )
-            print(f"SUCCESS: Email sent to {email}")
-        except Exception as e:
-            print(f"EMAIL ERROR: {str(e)}")
+            code    = str(random.randint(1000, 9999))
+            expires = timezone.now() + timedelta(minutes=10)
 
-        messages.success(request, 'Registration successful! Check your email for the verification code.')
-        return redirect(f'/accounts/verify/?email={email}')
+            user = CustomUser.objects.create_user(
+                username=email, email=email, password=password,
+                first_name=name, verification_code=code,
+                verification_code_expires=expires, is_verified=False,
+            )
+            print(f"USER CREATED: {user.email}")
+
+            try:
+                send_mail(
+                    'Your TopicFinder Verification Code',
+                    f'Hi {name},\n\nYour verification code is: {code}\n\nThis code expires in 10 minutes.',
+                    'mamoruguva@gmail.com',
+                    [email],
+                    fail_silently=False,
+                )
+                print(f"EMAIL SENT to {email}")
+            except Exception as e:
+                print(f"EMAIL ERROR: {str(e)}")
+
+            messages.success(request, 'Registration successful! Check your email for the verification code.')
+            return redirect(f'/accounts/verify/?email={email}')
+
+        except Exception as e:
+            print(f"REGISTER ERROR: {str(e)}")
+            messages.error(request, 'Registration failed. Please try again.')
+            return redirect('register')
 
     return render(request, 'accounts/register.html')
 # ─────────────────────────────────────────
