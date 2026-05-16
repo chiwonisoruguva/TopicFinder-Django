@@ -39,14 +39,14 @@ def register_view(request):
 
         # Auto-create StudentProfile for new student accounts
        
-profile = StudentProfile(
-    user=user,
-    reg_number=f"REG{user.id:04d}",
-    programme="Bachelor of Science in Computer Science",
-    year_of_study=1,
-)
-profile.graduation_year = timezone.now().year + 4
-profile.save()
+        profile = StudentProfile(
+            user=user,
+            reg_number=f"REG{user.id:04d}",
+            programme="Bachelor of Science in Computer Science",
+            year_of_study=1,
+        )
+        profile.graduation_year = timezone.now().year + 4
+        profile.save()
 
         try:
             send_mail(
