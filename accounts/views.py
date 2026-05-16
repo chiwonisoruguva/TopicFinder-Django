@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from datetime import timedelta
 import random
+import os
 from .models import (
     CustomUser, Project, ProjectTaken, ProjectFlag,
     StudentProfile, LecturerProfile, ProjectSuggestion, Tag
@@ -56,9 +57,11 @@ def register_view(request):
                 [email],
                 fail_silently=False,
             )
+            print(f"SUCCESS: Email sent to {email}")
         except Exception as e:
-            # Log the error but don't crash — user is still created
-            print(f"Email sending failed: {e}")
+            print(f"EMAIL ERROR: {str(e)}")
+            print(f"EMAIL BACKEND: {os.environ.get('EMAIL_BACKEND', 'not set')}")
+            print(f"EMAIL HOST USER: {os.environ.get('EMAIL_HOST_USER', 'not set')}")
 
         messages.success(request, 'Registration successful! Check your email for the verification code.')
         return redirect(f'/accounts/verify/?email={email}')
