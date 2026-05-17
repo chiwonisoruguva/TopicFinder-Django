@@ -302,7 +302,7 @@ def add_suggestion_view(request):
 @login_required
 def suggestions_page_view(request):
     suggestions = ProjectSuggestion.objects.select_related(
-        'lecturer__user'
+        'suggested_by__user'
     ).order_by('-created_at')
     return render(request, 'accounts/suggestions_list.html', {
         'suggestions': suggestions,
@@ -311,7 +311,7 @@ def suggestions_page_view(request):
 
 @login_required
 def suggestions_view(request):
-    suggestions = ProjectSuggestion.objects.select_related('lecturer__user').order_by('-created_at')
+    suggestions = ProjectSuggestion.objects.select_related('suggested_by__user').order_by('-created_at')
     data = [{
         'id':          s.id,
         'title':       s.title,
