@@ -2,17 +2,62 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
 from django.utils import timezone
 from django.db.models import Q
 from django.http import JsonResponse
 from datetime import timedelta
 import random
 import os
+import json
+import urllib.request
 from .models import (
     CustomUser, Project, ProjectTaken, ProjectFlag,
     StudentProfile, LecturerProfile, ProjectSuggestion, Tag
 )
+
+
+# ─────────────────────────────────────────
+#  SEND EMAIL via SendGrid Web API
+#  (bypasses SMTP port blocking on Railway)
+# ─────────────────────────────────────────
+
+def send_verification_email(to_email, name, code):
+    api_key = os.environ.get('SENDGRID_API_KEY', '')
+    if not api_key:
+        print("ERROR: SENDGRID_API_KEY not set")
+        return False
+
+    data = {
+        "personalizations": [{"to": [{"email": to_email}]}],
+        "from": {"email": "mamoruguva@gmail.com", "name": "TopicFinder"},
+        "subject": "Your TopicFinder Verification Code",
+        "content": [{
+            "type": "text/plain",
+            "value": f"Hi {name},\n\nYour TopicFinder verification code is: {code}\n\nThis code expires in 10 minutes.\n\nIf you did not register, ignore this email."
+        }]
+    }
+
+    req = urllib.request.Request(
+        'https://api.sendgrid.com/v3/mail/send',
+        data=json.dumps(data).encode('utf-8'),
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        },
+        method='POST'
+    )
+
+    try:
+        response = urllib.request.urlopen(req)
+        print(f"EMAIL SENT to {to_email} — status {response.status}")
+        return True
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8')
+        print(f"EMAIL HTTP ERROR {e.code}: {body}")
+        return False
+    except Exception as e:
+        print(f"EMAIL ERROR: {str(e)}")
+        return False
 
 
 # ─────────────────────────────────────────
@@ -38,19 +83,13 @@ def register_view(request):
                 first_name=name, verification_code=code,
                 verification_code_expires=expires, is_verified=False,
             )
-            print(f"USER CREATED: {user.email}")
+            print(f"USER CREATED: {user.email} id={user.id}")
 
-            try:
-                send_mail(
-                    'Your TopicFinder Verification Code',
-                    f'Hi {name},\n\nYour verification code is: {code}\n\nThis code expires in 10 minutes.',
-                    'mamoruguva@gmail.com',
-                    [email],
-                    fail_silently=False,
-                )
-                print(f"EMAIL SENT to {email}")
-            except Exception as e:
-                print(f"EMAIL ERROR: {str(e)}")
+            sent = send_verification_email(email, name, code)
+            if sent:
+                print(f"Verification email sent to {email}")
+            else:
+                print(f"Verification email FAILED for {email}")
 
             messages.success(request, 'Registration successful! Check your email for the verification code.')
             return redirect(f'/accounts/verify/?email={email}')
@@ -61,6 +100,8 @@ def register_view(request):
             return redirect('register')
 
     return render(request, 'accounts/register.html')
+
+
 # ─────────────────────────────────────────
 #  VERIFY
 # ─────────────────────────────────────────
