@@ -25,5 +25,7 @@ urlpatterns = [
     path('lecturer/add-suggestion/', views.add_suggestion_view,     name='add_suggestion'),
 
     # ── Suggestions ───────────────────────────────
-    path('suggestions/', views.suggestions_view, name='suggestions'),
+
+    path('suggestions/', views.suggestions_page_view, name='suggestions'),
+    path('suggestions/data/', views.suggestions_view, name='suggestions_data'),
 ]
