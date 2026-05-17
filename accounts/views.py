@@ -232,7 +232,7 @@ def lecturer_dashboard_view(request):
 
     profile     = get_object_or_404(LecturerProfile, user=request.user)
     projects    = Project.objects.filter(lecturer=profile).prefetch_related('tags').order_by('-created_at')
-    suggestions = ProjectSuggestion.objects.filter(lecturer=profile).order_by('-created_at')
+    suggestions = ProjectSuggestion.objects.filter(suggested_by=profile).order_by('-created_at')
     tags        = Tag.objects.all().order_by('name')
 
     return render(request, 'accounts/lecturer_dashboard.html', {
