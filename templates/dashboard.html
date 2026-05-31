@@ -554,7 +554,7 @@
 
     function buildCard(p, i) {
     var isTaken    = p.is_taken;
-    var isComplete = p.status === 'Complete';
+    var isComplete = p.status === 'complete';
     var cardClass  = isTaken ? 'project-card taken-card' : 'project-card';
     var delay      = (i * 60) + 'ms';
     var statusLabel = isTaken ? '🔒 Taken' : (isComplete ? '✅ Complete' : '⏳ In Progress');
