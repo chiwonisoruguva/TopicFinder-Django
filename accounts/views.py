@@ -424,7 +424,7 @@ def take_project_view(request, project_id):
 
     project = get_object_or_404(Project, id=project_id)
 
-    if project.status != 'complete':
+    if project.status != 'Complete':
         return JsonResponse({'error': 'Only completed projects can be taken.'}, status=400)
 
     if hasattr(project, 'taken'):
@@ -454,7 +454,7 @@ def flag_project_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
     # Only allow flagging complete projects
-    if project.status != 'complete':
+    if project.status != 'Complete':
         return JsonResponse({'error': 'Only completed projects can be flagged.'}, status=400)
 
     try:
