@@ -164,10 +164,10 @@
             <div class="project-card">
                 <div class="status-badge">✨ New Suggestion</div>
                 <h3 class="card-title">{{ idea.title }}</h3>
-                <p class="card-description">{{ idea.description }}</p>
+                <p class="card-description">{{ idea.brief_description }}</p>
                 <div class="recommendations-box">
                     <span class="rec-label">Suggested By</span>
-                    <strong style="color: #1a1a2e;">{{ idea.lecturer.user.get_full_name }}</strong>
+                    <strong style="color: #1a1a2e;">{{ idea.suggested_by.user.get_full_name }}</strong>
                 </div>
             </div>
             {% empty %}
