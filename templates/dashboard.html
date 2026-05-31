@@ -156,12 +156,10 @@
 
         .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
 
-        .project-card {
-            background-color: #fff; border-radius: 16px; padding: 24px;
-            box-shadow: 0 4px 20px rgba(79,70,229,0.08);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex; flex-direction: column; gap: 14px;
-            animation: fadeUp 0.3s ease forwards;
+        .project-card.taken-card {
+            opacity: 0.5;
+            background-color: #f3f4f6;
+            filter: grayscale(30%);
         }
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
@@ -563,16 +561,16 @@
     var statusClass = isTaken ? 'status-badge status-taken' : (isComplete ? 'status-badge status-complete' : 'status-badge status-in_progress');
     var tags = p.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('');
 
-    var takeBtn = '';
-    if (isStudent) {
-        if (isTaken) {
-            takeBtn = '<button class="btn btn-disabled" disabled>🔒 Already Taken</button>';
-        } else if (isComplete) {
-            takeBtn = '<button class="btn btn-primary" onclick="takeProject(' + p.id + ', this)">🎯 Take this Project</button>';
-        } else {
-            takeBtn = '<button class="btn btn-disabled" disabled style="background:#e5e7eb;color:#9CA3AF;cursor:not-allowed;">⏳ In Progress</button>';
-        }
+   var flagBtn = '';
+if (isStudent && isComplete) {  // Only show on complete projects
+    if (isTaken) {
+        flagBtn = '<button class="btn btn-danger" disabled style="opacity:0.5;cursor:not-allowed;">🚩 Taken & Flagged</button>';
+    } else if (p.is_flagged) {
+        flagBtn = '<button class="btn btn-danger" disabled>🚩 Flagged</button>';
+    } else {
+        flagBtn = '<button class="btn btn-danger" onclick="flagProject(' + p.id + ', this)">🚩 Flag</button>';
     }
+}
 
     var flagBtn = '';
     if (isStudent) {

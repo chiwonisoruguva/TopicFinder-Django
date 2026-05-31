@@ -400,7 +400,7 @@ def search_view(request):
             'lecturer':        lecturer_name,
             'department':      department,
             'is_taken':        p.id in taken_ids,
-            'is_flagged':      p.id in flagged_ids,
+             'is_flagged':      p.id in taken_ids or p.id in flagged_ids,  # flagged if taken OR manually flagged
         })
 
     return JsonResponse({
@@ -452,6 +452,10 @@ def flag_project_view(request, project_id):
         return JsonResponse({'error': 'Only students can flag projects.'}, status=403)
 
     project = get_object_or_404(Project, id=project_id)
+
+    # Only allow flagging complete projects
+    if project.status != 'complete':
+        return JsonResponse({'error': 'Only completed projects can be flagged.'}, status=400)
 
     try:
         student_profile = request.user.student_profile
