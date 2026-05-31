@@ -200,6 +200,15 @@ def dashboard_view(request):
     if request.user.role == 'lecturer':
         return redirect('lecturer_dashboard')
 
+    # Reset credits if 5 minutes have passed
+    user = request.user
+    if user.search_credits_reset_at:
+        elapsed = timezone.now() - user.search_credits_reset_at
+        if elapsed >= timedelta(minutes=5):
+            user.search_count = 10
+            user.search_credits_reset_at = None
+            user.save()
+
     suggestions = ProjectSuggestion.objects.all().order_by('-created_at')[:5]
 
     return render(request, 'dashboard.html', {
