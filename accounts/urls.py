@@ -28,4 +28,5 @@ urlpatterns = [
 
     path('suggestions/', views.suggestions_page_view, name='suggestions'),
     path('suggestions/data/', views.suggestions_view, name='suggestions_data'),
+    path('check-credits/', views.check_credits_view, name='check_credits'),
 ]

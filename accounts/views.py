@@ -468,3 +468,21 @@ def flag_project_view(request, project_id):
         return JsonResponse({'success': True,  'message': 'Project flagged successfully.'})
     else:
         return JsonResponse({'success': False, 'message': 'You have already flagged this project.'})
+
+# ─────────────────────────────────────────
+#  CHECK CREDITS (AJAX)
+# ─────────────────────────────────────────
+
+@login_required
+def check_credits_view(request):
+    user = request.user
+
+    # Reset if 5 minutes have passed
+    if user.search_credits_reset_at:
+        elapsed = timezone.now() - user.search_credits_reset_at
+        if elapsed >= timedelta(minutes=5):
+            user.search_count = 10
+            user.search_credits_reset_at = None
+            user.save()
+
+    return JsonResponse({'credits': user.search_count})
