@@ -760,16 +760,11 @@ setInterval(function() {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        if (data.credits > searchCount) {  // Credits were reset
-            updateCredits(data.credits);
-            document.getElementById('searchInput').disabled = false;
-            document.getElementById('searchBtn').disabled = false;
-            document.getElementById('noCredits').style.display = 'none';
-            showToast('🎉 Your search credits have been reset!', 'success');
+        if (data.credits > searchCount) {
+            location.reload(); // Reload the page so dashboard_view resets credits fresh
         }
     });
-}, 10000); // every 10 seconds
-
+}, 10000);
 </script>
 
 </body>
