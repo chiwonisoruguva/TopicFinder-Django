@@ -357,7 +357,7 @@
             <p class="search-subtitle">Search for a computer science topic and we'll suggest the best ones for you.</p>
             <div class="search-box">
                 <input type="text" class="search-input" id="searchInput"
-                    placeholder="e.g. Artificial Intelligence, Cybersecurity..."
+                    placeholder="e.g. Cybersecurity, Machine Learning..."
                     onkeydown="if(event.key==='Enter') doSearch()" />
                 <button class="search-btn" id="searchBtn" onclick="doSearch()">Search →</button>
             </div>
@@ -403,12 +403,7 @@
         <button class="color-btn" style="background-color:#d97706;" onclick="setColor('#d97706','#b45309',this)"></button>
         <button class="color-btn" style="background-color:#7c3aed;" onclick="setColor('#7c3aed','#6d28d9',this)"></button>
     </div>
-    <p class="section-title">Font Size</p>
-    <div class="font-options">
-        <button class="font-btn" style="font-size:12px;" onclick="setFontSize('14px',this)">Small</button>
-        <button class="font-btn active" style="font-size:14px;" onclick="setFontSize('16px',this)">Medium</button>
-        <button class="font-btn" style="font-size:16px;" onclick="setFontSize('18px',this)">Large</button>
-    </div>
+    
     <p class="section-title">Display Name</p>
     <input type="text" class="name-input" id="displayNameInput" placeholder="Enter your display name" value="{{ user.first_name|default:user.email }}" />
     <button class="save-name-btn" onclick="saveName()">Save Name</button>
