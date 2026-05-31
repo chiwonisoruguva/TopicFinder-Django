@@ -382,11 +382,13 @@ def search_view(request):
 
     taken_ids   = []
     flagged_ids = []
+    has_taken   = False
     if user.is_student:
         try:
             student     = user.student_profile
             taken_ids   = list(ProjectTaken.objects.values_list('project_id', flat=True))
             flagged_ids = list(ProjectFlag.objects.filter(student=student).values_list('project_id', flat=True))
+            has_taken   = ProjectTaken.objects.filter(student=student).exists()
         except StudentProfile.DoesNotExist:
             pass
 
@@ -417,6 +419,7 @@ def search_view(request):
         'count':             len(results),
         'credits_remaining': user.search_count,
         'query':             query,
+        'has_taken':         has_taken,
     })
 
 # ─────────────────────────────────────────
@@ -437,17 +440,19 @@ def take_project_view(request, project_id):
         return JsonResponse({'error': 'Only completed projects can be taken.'}, status=400)
 
     if hasattr(project, 'taken'):
-        return JsonResponse({'error': 'This project has already been taken.'}, status=400)
+        return JsonResponse({'error': 'This project has already been taken by someone.'}, status=400)
 
     try:
         student_profile = request.user.student_profile
     except StudentProfile.DoesNotExist:
         return JsonResponse({'error': 'Student profile not found.'}, status=400)
 
+    # Check if this student has already taken a project
+    if ProjectTaken.objects.filter(student=student_profile).exists():
+        return JsonResponse({'error': 'You have already taken a project. You can only take one.'}, status=400)
+
     ProjectTaken.objects.create(project=project, student=student_profile)
     return JsonResponse({'success': True, 'message': f'You have successfully taken "{project.title}"!'})
-
-
 # ─────────────────────────────────────────
 #  FLAG PROJECT (AJAX)
 # ─────────────────────────────────────────

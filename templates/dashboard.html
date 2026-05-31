@@ -475,6 +475,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+    var studentHasTaken = false;  // add this at the top of your script
     var searchCount = parseInt("{{ user.search_count }}");
     var csrfToken   = "{{ csrf_token }}";
     var isStudent = "{{ user.is_student|yesno:'true,false' }}" === "true";
@@ -537,6 +538,7 @@
     }
 
     function renderResults(data) {
+        studentHasTaken = data.has_taken;  // store it
         var section = document.getElementById('resultsSection');
         var grid    = document.getElementById('projectsGrid');
         var title   = document.getElementById('resultsTitle');
@@ -571,6 +573,9 @@ function buildCard(p, i) {
             if (isTaken) {
                 takeBtn = '<button class="btn btn-disabled" disabled>🔒 Already Taken</button>';
                 flagBtn = '<button class="btn btn-danger" disabled style="opacity:0.5;">🚩 Taken</button>';
+             } else if (studentHasTaken) {
+            // This student already took a different project
+            takeBtn = '<button class="btn btn-disabled" disabled title="You already took a project"> Limit Reached</button>';
             } else if (p.is_flagged) {
                 takeBtn = '<button class="btn btn-primary" onclick="takeProject(' + p.id + ', this)">🎯 Take this Project</button>';
                 flagBtn = '<button class="btn btn-danger" disabled>🚩 Flagged</button>';
