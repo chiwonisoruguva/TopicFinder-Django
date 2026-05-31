@@ -552,48 +552,56 @@
         data.results.forEach(function(p, i) { grid.innerHTML += buildCard(p, i); });
     }
 
-    function buildCard(p, i) {
+function buildCard(p, i) {
     var isTaken    = p.is_taken;
     var isComplete = p.status === 'Complete';
     var cardClass  = isTaken ? 'project-card taken-card' : 'project-card';
     var delay      = (i * 60) + 'ms';
     var statusLabel = isTaken ? '🔒 Taken' : (isComplete ? '✅ Complete' : '⏳ In Progress');
     var statusClass = isTaken ? 'status-badge status-taken' : (isComplete ? 'status-badge status-complete' : 'status-badge status-in_progress');
-    var tags = p.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('');
+    var tags = (p.tags && p.tags.length > 0)
+        ? p.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('')
+        : '<span style="font-size:12px;color:#aaa;">No tags</span>';
 
-   var flagBtn = '';
-if (isStudent && isComplete) {  // Only show on complete projects
-    if (isTaken) {
-        flagBtn = '<button class="btn btn-danger" disabled style="opacity:0.5;cursor:not-allowed;">🚩 Taken & Flagged</button>';
-    } else if (p.is_flagged) {
-        flagBtn = '<button class="btn btn-danger" disabled>🚩 Flagged</button>';
-    } else {
-        flagBtn = '<button class="btn btn-danger" onclick="flagProject(' + p.id + ', this)">🚩 Flag</button>';
-    }
-}
-
+    var takeBtn = '';
     var flagBtn = '';
+
     if (isStudent) {
-        flagBtn = p.is_flagged
-            ? '<button class="btn btn-danger" disabled>🚩 Flagged</button>'
-            : '<button class="btn btn-danger" onclick="flagProject(' + p.id + ', this)">🚩 Flag</button>';
+        if (isComplete) {
+            if (isTaken) {
+                takeBtn = '<button class="btn btn-disabled" disabled>🔒 Already Taken</button>';
+                flagBtn = '<button class="btn btn-danger" disabled style="opacity:0.5;">🚩 Taken</button>';
+            } else if (p.is_flagged) {
+                takeBtn = '<button class="btn btn-primary" onclick="takeProject(' + p.id + ', this)">🎯 Take this Project</button>';
+                flagBtn = '<button class="btn btn-danger" disabled>🚩 Flagged</button>';
+            } else {
+                takeBtn = '<button class="btn btn-primary" onclick="takeProject(' + p.id + ', this)">🎯 Take this Project</button>';
+                flagBtn = '<button class="btn btn-danger" onclick="flagProject(' + p.id + ', this)">🚩 Flag</button>';
+            }
+        }
+        // In Progress projects get no take or flag buttons
     }
+
+    var recBox = (p.recommendations && p.recommendations.trim() !== '')
+        ? '<div>' +
+            '<span class="rec-label" style="cursor:pointer;" onclick="toggleRecommendations(' + p.id + ')">💡 RECOMMENDATIONS FOR FUTURE STUDENTS</span>' +
+            '<div class="recommendations-box" id="rec-' + p.id + '" style="display:none; padding: 10px 0;">' + p.recommendations + '</div>' +
+          '</div>'
+        : '';
 
     return '<div class="' + cardClass + '" style="animation-delay:' + delay + '" id="card-' + p.id + '">' +
         '<div class="card-header">' +
-            '<span class="card-title">' + p.title + '</span>' +
+            '<span class="card-title">' + (p.title || 'Untitled') + '</span>' +
             '<span class="' + statusClass + '">' + statusLabel + '</span>' +
         '</div>' +
         '<div class="card-meta">' +
-            '<span>📅 ' + p.year + '</span>' +
+            '<span>📅 ' + (p.year || '') + '</span>' +
             (p.lecturer ? '<span>👨‍🏫 ' + p.lecturer + '</span>' : '') +
             (p.department ? '<span>🏛️ ' + p.department + '</span>' : '') +
         '</div>' +
-        '<div class="card-description collapsed" id="desc-' + p.id + '">' + p.description + '</div>' +
-        '<div>' +
-            '<span class="rec-label" style="cursor:pointer;" onclick="toggleRecommendations(' + p.id + ')">💡 RECOMMENDATIONS FOR FUTURE STUDENTS</span>' +
-            '<div class="recommendations-box" id="rec-' + p.id + '" style="display:none; padding: 10px 0;">' + p.recommendations + '</div>' +
-        '</div>' +
+        '<div class="card-description collapsed" id="desc-' + p.id + '">' + (p.description || '') + '</div>' +
+        recBox +
+        '<div class="tags-row">' + tags + '</div>' +
         '<div class="card-actions">' + takeBtn + flagBtn +
             '<button class="btn btn-toggle" onclick="toggleDetails(' + p.id + ', this)">👁 View Details</button>' +
         '</div>' +
