@@ -17,7 +17,8 @@ class CustomUser(AbstractUser):
     is_verified              = models.BooleanField(default=False)
     verification_code        = models.CharField(max_length=4, blank=True, null=True)
     verification_code_expires = models.DateTimeField(blank=True, null=True)
-    search_count             = models.IntegerField(default=10)
+    search_count             = models.IntegerField(default=10)    
+    search_credits_reset_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.email

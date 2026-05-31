@@ -747,21 +747,22 @@
 
     loadPreferences();
 
-    // Auto-check credits every 60 seconds
+// Poll every 10 seconds to catch the 5-minute reset
 setInterval(function() {
     fetch('/accounts/check-credits/', {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        if (data.credits > 0) {
+        if (data.credits > searchCount) {  // Credits were reset
             updateCredits(data.credits);
             document.getElementById('searchInput').disabled = false;
             document.getElementById('searchBtn').disabled = false;
             document.getElementById('noCredits').style.display = 'none';
+            showToast('🎉 Your search credits have been reset!', 'success');
         }
     });
-}, 60000); // check every 60 seconds
+}, 10000); // every 10 seconds
 
 </script>
 

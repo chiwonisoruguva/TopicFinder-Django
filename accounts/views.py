@@ -328,6 +328,16 @@ def suggestions_view(request):
 
 @login_required
 def search_view(request):
+    user = request.user
+
+    # Reset credits if 5 minutes have passed
+    if user.search_credits_reset_at:
+        elapsed = timezone.now() - user.search_credits_reset_at
+        if elapsed >= timedelta(minutes=5):
+            user.search_count = 10
+            user.search_credits_reset_at = None
+            user.save()
+
     query = request.GET.get('q', '').strip().lower()
 
     SYNONYMS = {
@@ -347,11 +357,13 @@ def search_view(request):
     if not query:
         return JsonResponse({'error': 'Please enter a search term.'}, status=400)
 
-    if request.user.search_count <= 0:
+    if user.search_count <= 0:
         return JsonResponse({'error': 'You have used all your search credits.'}, status=403)
 
-    request.user.search_count -= 1
-    request.user.save()
+    user.search_count -= 1
+    if user.search_count == 0:
+        user.search_credits_reset_at = timezone.now()  # Start 5 min timer
+    user.save()
 
     projects = Project.objects.filter(
         Q(title__icontains=query) |
@@ -361,9 +373,9 @@ def search_view(request):
 
     taken_ids   = []
     flagged_ids = []
-    if request.user.is_student:
+    if user.is_student:
         try:
-            student     = request.user.student_profile
+            student     = user.student_profile
             taken_ids   = list(ProjectTaken.objects.values_list('project_id', flat=True))
             flagged_ids = list(ProjectFlag.objects.filter(student=student).values_list('project_id', flat=True))
         except StudentProfile.DoesNotExist:
@@ -394,10 +406,9 @@ def search_view(request):
     return JsonResponse({
         'results':           results,
         'count':             len(results),
-        'credits_remaining': request.user.search_count,
+        'credits_remaining': user.search_count,
         'query':             query,
     })
-
 
 # ─────────────────────────────────────────
 #  TAKE PROJECT (AJAX)
