@@ -297,7 +297,7 @@ def add_suggestion_view(request):
 
         ProjectSuggestion.objects.create(
             title             = request.POST.get('title'),
-            brief_description = request.POST.get('description'),  # model uses brief_description
+            brief_description = request.POST.get('brief_description'),  # model uses brief_description
             suggested_by      = profile,                          # model uses suggested_by
         )
         messages.success(request, 'Suggestion posted successfully!')
