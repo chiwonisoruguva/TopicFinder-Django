@@ -740,21 +740,32 @@ function buildCard(p, i) {
     }
 
     function setAvatar(avatar, btn) {
-        document.querySelectorAll('.avatar-btn').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        localStorage.setItem('avatar', avatar);
-    }
+    document.querySelectorAll('.avatar-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    localStorage.setItem('avatar', avatar);
+    // Show avatar next to the welcome text
+    var welcomeEl = document.querySelector('.welcome-text');
+    welcomeEl.innerHTML = 'Welcome back, <strong>' + (localStorage.getItem('displayName') || '{{ user.first_name }}') + '</strong> ' + avatar;
+}
 
     function loadPreferences() {
-        var theme = localStorage.getItem('theme');
-        if (theme === 'dark') setTheme('dark');
-        var fontSize = localStorage.getItem('fontSize');
-        if (fontSize) document.body.style.fontSize = fontSize;
-        var displayName = localStorage.getItem('displayName');
-        if (displayName) {
-            document.querySelector('.welcome-text').innerHTML = 'Welcome back, <strong>' + displayName + '</strong> 👋';
-        }
+    var theme = localStorage.getItem('theme');
+    if (theme === 'dark') setTheme('dark');
+    var fontSize = localStorage.getItem('fontSize');
+    if (fontSize) document.body.style.fontSize = fontSize;
+    var displayName = localStorage.getItem('displayName') || '{{ user.first_name }}';
+    var avatar = localStorage.getItem('avatar') || '👋';
+    document.querySelector('.welcome-text').innerHTML = 'Welcome back, <strong>' + displayName + '</strong> ' + avatar;
+
+    // Highlight the active avatar button
+    if (localStorage.getItem('avatar')) {
+        document.querySelectorAll('.avatar-btn').forEach(function(b) {
+            if (b.textContent.trim() === localStorage.getItem('avatar')) {
+                b.classList.add('active');
+            }
+        });
     }
+}
 
     loadPreferences();
 
