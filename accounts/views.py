@@ -453,10 +453,14 @@ def take_project_view(request, project_id):
     if hasattr(project, 'taken'):
         return JsonResponse({'error': 'This project has already been taken by someone.'}, status=400)
 
-    try:
-        student_profile = request.user.student_profile
-    except StudentProfile.DoesNotExist:
-        return JsonResponse({'error': 'Student profile not found.'}, status=400)
+    student_profile, created = StudentProfile.objects.get_or_create(
+    user=request.user,
+    defaults={
+        'reg_number': f'REG{request.user.id}',
+        'programme': 'Not specified',
+        'year_of_study': 1,
+    }
+)
 
     # Check if this student has already taken a project
     if ProjectTaken.objects.filter(student=student_profile).exists():
@@ -482,10 +486,14 @@ def flag_project_view(request, project_id):
     if project.status != 'Complete':
         return JsonResponse({'error': 'Only completed projects can be flagged.'}, status=400)
 
-    try:
-        student_profile = request.user.student_profile
-    except StudentProfile.DoesNotExist:
-        return JsonResponse({'error': 'Student profile not found.'}, status=400)
+    student_profile, created = StudentProfile.objects.get_or_create(
+    user=request.user,
+    defaults={
+        'reg_number': f'REG{request.user.id}',
+        'programme': 'Not specified',
+        'year_of_study': 1,
+    }
+)
 
     flag, created = ProjectFlag.objects.get_or_create(project=project, student=student_profile)
 
