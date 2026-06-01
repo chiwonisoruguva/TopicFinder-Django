@@ -83,6 +83,15 @@ def register_view(request):
                 first_name=name, verification_code=code,
                 verification_code_expires=expires, is_verified=False,
             )
+
+            # Auto-create student profile
+            StudentProfile.objects.create(
+                user=user,
+                reg_number=f'REG{user.id}',
+                programme='Not specified',
+                year_of_study=1,
+            )
+
             print(f"USER CREATED: {user.email} id={user.id}")
 
             sent = send_verification_email(email, name, code)
@@ -101,14 +110,7 @@ def register_view(request):
 
     return render(request, 'accounts/register.html')
 
-# Auto-create student profile with default values
-StudentProfile.objects.create(
-    user=user,
-    reg_number=f'REG{user.id}',
-    programme='Not specified',
-    year_of_study=1,
-    graduation_year=user.date_joined.year + 4,
-)
+
 
 
 # ─────────────────────────────────────────
